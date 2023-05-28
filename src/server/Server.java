@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
+import java.sql.*;
 
 public class Server implements Runnable{
 
@@ -28,16 +29,24 @@ public class Server implements Runnable{
         }
     }
 }
-class ClientHandler implements Runnable{
+class ClientHandler extends Thread implements Runnable{
 
     private Socket client;
 
     @Override
     public void run() {
+        try {
+            java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+            Statement statement = connection.createStatement();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
     public ClientHandler(Socket client) {
+
         this.client=client;
     }
 }
