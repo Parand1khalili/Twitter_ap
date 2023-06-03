@@ -16,6 +16,7 @@ public class User implements Serializable {
     private Date lastUpdate;
     private String profPicName;
     private String headerPicName;
+    private String bio;
 
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
                 String country, String birthDate) {

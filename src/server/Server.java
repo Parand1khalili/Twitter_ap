@@ -62,6 +62,7 @@ class ClientHandler implements Runnable{
                 }
                 else if (command.equals("sign-in")) {
 
+
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -104,6 +105,23 @@ class ClientHandler implements Runnable{
                 "VALUES "+ theUser.getId()+theUser.getFirstName()+theUser.getLastName()+theUser.getEmail()+theUser.getPhoneNumber()+
                 theUser.getPassword()+theUser.getCountry()+theUser.getBirthDate()+theUser.getRegisterDate());
         respond = "success";
+        out.writeObject(respond);
+    }
+    public static void signInServer(String id, String pass) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(id)){
+                if(!resultSet.getString(6).equals(pass)){
+                    respond="wrong-pass";
+                    out.writeObject(respond);
+                    return;
+                }
+            }
+        }
+        respond="not-available";
         out.writeObject(respond);
     }
 }
