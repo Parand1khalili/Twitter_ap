@@ -63,6 +63,30 @@ public class  Client implements Runnable {
         }
         System.out.println("phone:");
         newUserArgs.add(scanner.nextLine());
+        while(newUserArgs.get(3) == null && newUserArgs.get(4) == null){
+            System.out.println("email and phone number is empty please choose to fill");
+            System.out.println("1.email 2.phone 3.both");
+            int choice = scanner.nextInt();
+            if(choice==1){
+                while (!emailValidity(newUserArgs.get(3))){
+                    System.out.println("invalid email format try again");
+                    newUserArgs.set(3,scanner.nextLine());
+                }
+                newUserArgs.set(3,scanner.nextLine());
+            }
+            else if(choice==2){
+                newUserArgs.set(4,scanner.nextLine());
+            }
+            else if(choice==3){
+                newUserArgs.set(3,scanner.nextLine());
+                while (!emailValidity(newUserArgs.get(3))){
+                    System.out.println("invalid email format try again");
+                    newUserArgs.set(3,scanner.nextLine());
+                }
+                newUserArgs.set(4,scanner.nextLine());
+            }
+
+        }
         System.out.println("pass");
         newUserArgs.add(scanner.nextLine());
         while (!checkPass(newUserArgs.get(5))){
@@ -83,6 +107,22 @@ public class  Client implements Runnable {
                 newUserArgs.get(4),newUserArgs.get(5),newUserArgs.get(7),newUserArgs.get(8));
         out.writeObject("sign-up");
         out.writeObject(newUser);
+        try {
+            if(((String) in.readObject()).equals("duplicate-id")){
+                //todo handle
+            }
+            else if(((String) in.readObject()).equals("duplicate-email")){
+                //todo handle
+            }
+            else if(((String) in.readObject()).equals("duplicate-number")){
+                //todo handle
+            }
+            else if(((String) in.readObject()).equals("success")){
+                //todo handle
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
     public static boolean emailValidity(String email){
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
