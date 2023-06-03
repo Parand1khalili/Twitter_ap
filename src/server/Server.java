@@ -61,7 +61,11 @@ class ClientHandler implements Runnable{
                     signUpServer(x=(User)in.readObject());
                 }
                 else if (command.equals("sign-in")) {
-
+                    User y = (User)in.readObject() ;
+                    signInServer(y.getId(),y.getPassword());
+                }
+                else if(command.equals("profile")){
+                    User x = (User)in.readObject();
 
                 }
             }
@@ -119,10 +123,28 @@ class ClientHandler implements Runnable{
                     out.writeObject(respond);
                     return;
                 }
+                else{
+                    respond="success";
+                    out.writeObject(respond);
+                    return;
+                }
             }
         }
-        respond="not-available";
+        respond="not-found";
         out.writeObject(respond);
+    }
+    public static void profile(User theUser) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                        resultSet.getString(13));
+                out.writeObject(theProfile);
+                return;
+            }
+        }
     }
 }
 
