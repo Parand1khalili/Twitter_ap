@@ -66,7 +66,10 @@ class ClientHandler implements Runnable{
                 }
                 else if(command.equals("profile")){
                     User x = (User)in.readObject();
-
+                    profile(x=(User)in.readObject());
+                }
+                else if(command.equals("edit-profile")){
+                   // editProfile();todo
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -145,6 +148,21 @@ class ClientHandler implements Runnable{
                 return;
             }
         }
+    }
+    public static void editProfile(User theUser,String prof) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                statement.executeUpdate("INSERT INTO user(profilePicture)"+theUser.getProfPicName());
+                Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                        resultSet.getString(13));
+                out.writeObject(theProfile);
+                return;
+            }
+        }
+
     }
 }
 

@@ -18,6 +18,7 @@ public class User implements Serializable {
     private String headerPicName;
     private String bio;
 
+
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
                 String country, Date birthDate) {
         this.id = id;
