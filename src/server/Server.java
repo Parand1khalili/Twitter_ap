@@ -67,27 +67,44 @@ class ClientHandler implements Runnable{
         } catch (IOException | ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     public ClientHandler(Socket client) {
         this.client=client;
     }
 
-    public static void signUpServer(User theUser) throws SQLException {
+    public static void signUpServer(User theUser) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
-
-        while(resultSet.next()){
-            if(resultSet.)
+        String respond;
+        if(theUser.getEmail()==null && theUser.getPhoneNumber()==null){
+            respond = "empty-field";
+            out.writeObject(respond);
+            return;
         }
-
+        while(resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                respond = "duplicate-id";
+                out.writeObject(respond);
+                return;
+            }
+            else if(resultSet.getString(4).equals(theUser.getEmail())){
+                respond = "duplicate-email";
+                out.writeObject(respond);
+                return;
+            }
+            else if(resultSet.getString(5).equals(theUser.getPhoneNumber())){
+                respond = "duplicate-number";
+                out.writeObject(respond);
+                return;
+            }
+        }
         statement.executeUpdate("INSERT INTO user(id,firstName,lastName,email,phoneNumber,password,country,birthDate,registerDate) " +
                 "VALUES "+ theUser.getId()+theUser.getFirstName()+theUser.getLastName()+theUser.getEmail()+theUser.getPhoneNumber()+
                 theUser.getPassword()+theUser.getCountry()+theUser.getBirthDate()+theUser.getRegisterDate());
-
+        respond = "success";
+        out.writeObject(respond);
     }
 }
 
