@@ -185,7 +185,7 @@ public class  Client implements Runnable {
         System.out.print("1.profile\n2.time line\n3.new tweet\n4.search\n5.logout\n");
         int choice = scanner.nextInt();
         if(choice == 1){
-            // profile az server
+            profile(loggedUser);
         }
         else if (choice == 2){
             //TODO
@@ -204,6 +204,37 @@ public class  Client implements Runnable {
             }
         }
     }
+    public static void profile (User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(loggedUser.getFirstName() + " " + loggedUser.getLastName());
+        System.out.print("1.edit profile\n2.edit header\n3.edit bio\n4.edit web\n5.edit location\n6.back\n");
+        int choice = scanner.nextInt();
+        if(choice == 1){
+            editProfile(loggedUser);
+        }
+        else if(choice == 2){
+            editHeader(loggedUser);
+        }
+        else if(choice == 3){
+            editBio(loggedUser);
+        }
+        else if(choice == 4){
+            editWeb(loggedUser);
+        }
+        else if(choice == 5){
+            editLocation(loggedUser);
+        }
+        else if(choice == 6){
+            login(loggedUser.getId());
+        }
+    }
+    public static void editProfile(User loggedUser){
+
+    }
+    public static void editHeader(User loggedUser){}
+    public static void editBio(User loggedUser){}
+    public static void editWeb(User logedUser){}
+    public static void editLocation(User loggedUser){}
     public static boolean emailValidity(String email){
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(regex);
@@ -220,11 +251,4 @@ public class  Client implements Runnable {
         return isOkay;
     }
 
-}
-
-class SignInClient implements Runnable{
-    @Override
-    public void run() {
-
-    }
 }

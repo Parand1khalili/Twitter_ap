@@ -64,6 +64,9 @@ class ClientHandler implements Runnable{
                     User y = (User)in.readObject() ;
                     signInServer(y.getId(),y.getPassword());
                 }
+                else if(command.equals("get-user")){
+                    getUser((String) in.readObject());
+                }
                 else if(command.equals("profile")){
                     User x = (User)in.readObject();
                     profile(x);
@@ -77,9 +80,6 @@ class ClientHandler implements Runnable{
                     User x=(User) in.readObject();
                     String y=(String) in.readObject();
                     editHeader(x,y);
-                }
-                else if(command.equals("get-user")){
-                    getUser((String) in.readObject());
                 }
                 else if(command.equals("edit-bio")){
                     User x=(User) in.readObject();
