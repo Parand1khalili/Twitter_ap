@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.sql.*;
 import java.util.concurrent.Executors;
@@ -105,8 +106,11 @@ class ClientHandler implements Runnable{
                 else if(command.equals("search")){
                     String x=(String) in.readObject();
                     search(x);
-
-
+                }
+                else if (command.equals("unfollow")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    unfollow(x,y);
                 }
 
             }
@@ -320,8 +324,52 @@ class ClientHandler implements Runnable{
             out.writeObject(res);
             return;
         }
-
-
+    }
+    public static void unfollow(User theUser,String followingId) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                if(!resultSet.getString(17).contains(followingId)){
+                    respond="is not followed";
+                    out.writeObject(respond);
+                    return;
+                }
+                else {
+                    int i;
+                    String[] following=resultSet.getString(17).split("=");
+                    ArrayList<String> list = new ArrayList<String>(Arrays.asList(following));
+                    for( i=0;i<list.size();i++){
+                        if(list.equals(followingId)){
+                            break;
+                        }
+                        i++;
+                    }
+                    list.remove(i);
+                    statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list);
+                }
+            }
+        }
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(followingId)){
+                int i;
+                String[] follower=resultSet.getString(16).split("=");
+                ArrayList<String> list = new ArrayList<>(Arrays.asList(follower));
+                for(i=0;i<list.size();i++){
+                    if(list.equals(theUser.getId())){
+                        break;
+                    }
+                    i++;
+                }
+                list.remove(i);
+                statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
+                respond="success";
+                out.writeObject(respond);
+                return;
+            }
+        }
     }
 }
 
