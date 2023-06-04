@@ -81,6 +81,22 @@ class ClientHandler implements Runnable{
                 else if(command.equals("get-user")){
                     getUser((String) in.readObject());
                 }
+                else if(command.equals("edit-bio")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    editProf(x,y,1);
+                }
+                else if(command.equals("edit-location")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    editProf(x,y,2);
+                }
+                else if(command.equals("edit-web")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    editProf(x,y,3);
+                }
+
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
@@ -200,6 +216,47 @@ class ClientHandler implements Runnable{
                         resultSet.getString(3),resultSet.getString(4),resultSet.getString(5)
                 ,resultSet.getString(6),resultSet.getNString(7),resultSet.getString(8));
                 out.writeObject(theUser);
+            }
+        }
+    }
+    public static void editProf(User theUser,String text,int com) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        if(com==1){
+            //bio
+            while (resultSet.next()){
+                if(resultSet.getString(1).equals(theUser.getId())){
+                    statement.executeUpdate("INSERT INTO user(bio)"+"VALUES "+text);
+                    Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                    out.writeObject(theProfile);
+                    return;
+                }
+            }
+        }
+        else if(com==2){
+            //loc
+            while (resultSet.next()){
+                if(resultSet.getString(1).equals(theUser.getId())){
+                    statement.executeUpdate("INSERT INTO user(location)"+"VALUES "+text);
+                    Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                    out.writeObject(theProfile);
+                    return;
+                }
+            }
+        }
+        else if(com==3){
+            //web
+            while (resultSet.next()){
+                if(resultSet.getString(1).equals(theUser.getId())){
+                    statement.executeUpdate("INSERT INTO user(web)"+"VALUES "+text);
+                    Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                    out.writeObject(theProfile);
+                    return;
+                }
             }
         }
     }
