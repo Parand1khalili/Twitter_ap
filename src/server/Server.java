@@ -112,6 +112,10 @@ class ClientHandler implements Runnable{
                     String y=(String) in.readObject();
                     unfollow(x,y);
                 }
+                else if ((command.equals("new-tweet"))){
+                    Tweet x=(Tweet) in.readObject();
+                    newTweet(x);
+                }
 
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -370,6 +374,14 @@ class ClientHandler implements Runnable{
                 return;
             }
         }
+    }
+    public static void newTweet(Tweet tweet) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("INSERT INTO Tweet(text, picture, userid, like, retweet, comment, date) "+"VALUES "
+        +tweet.getText()+tweet.getPicLink()+tweet.getUserId()+tweet.getLikes()+tweet.getRetweet()+tweet.getComment()+tweet.getDate());
+        String respond="success";
+        out.writeObject(respond);
     }
 }
 
