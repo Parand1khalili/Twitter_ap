@@ -71,6 +71,9 @@ class ClientHandler implements Runnable{
                 else if(command.equals("edit-profile")){
                    // editProfile();todo
                 }
+                else if(command.equals("get-user")){
+                    getUser((String) in.readObject());
+                }
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
@@ -163,6 +166,19 @@ class ClientHandler implements Runnable{
             }
         }
 
+    }
+    public static void getUser(String id) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(id)){
+                User theUser=new User(resultSet.getString(1),resultSet.getString(2),
+                        resultSet.getString(3),resultSet.getString(4),resultSet.getString(5)
+                ,resultSet.getString(6),resultSet.getNString(7),resultSet.getString(8));
+                out.writeObject(theUser);
+            }
+        }
     }
 }
 

@@ -11,7 +11,7 @@ public class User implements Serializable {
     private String phoneNumber;
     private String password;
     private String country;
-    private Date birthDate;
+    private String birthDate;
     private Date registerDate;
     private Date lastUpdate;
     private String profPicName;
@@ -20,7 +20,7 @@ public class User implements Serializable {
 
 
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
-                String country, Date birthDate) {
+                String country, String birthDate) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -60,7 +60,7 @@ public class User implements Serializable {
         return country;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
