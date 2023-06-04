@@ -3,6 +3,7 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.sql.*;
 import java.util.concurrent.Executors;
@@ -100,6 +101,10 @@ class ClientHandler implements Runnable{
                     User x=(User) in.readObject();
                     String y=(String) in.readObject();
                     follow(x,y);
+                }
+                else if(command.equals("search")){
+                    String x=(String) in.readObject();
+                    search(x);
                 }
 
             }
@@ -288,6 +293,33 @@ class ClientHandler implements Runnable{
                 }
             }
         }
+    }
+    public static void search(String text) throws SQLException, IOException {
+        ArrayList <User> res=new ArrayList<>();
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        while (resultSet.next()){
+            if(resultSet.getString(1).contains(text)||resultSet.getString(2).contains(text)
+                    ||resultSet.getString(3).contains(text)){
+                User newUser = new User(resultSet.getString(1),resultSet.getString(2),
+                        resultSet.getString(3),resultSet.getString(4),resultSet.getString(5),
+                        resultSet.getString(6),resultSet.getString(7),resultSet.getString(8));
+                res.add(newUser);
+            }
+        }
+        if(res.isEmpty()){
+            respond="not-found";
+            out.writeObject(respond);
+            return;
+        }
+        else{
+            out.writeObject(res);
+            return;
+        }
+
+
     }
 }
 
