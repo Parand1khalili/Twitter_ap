@@ -22,7 +22,6 @@ public class  Client implements Runnable {
         out = new ObjectOutputStream(client.getOutputStream());
         in = new ObjectInputStream(client.getInputStream());
         ShowMenu();
-
     }
     @Override
     public void run() {
@@ -38,7 +37,7 @@ public class  Client implements Runnable {
             signUp();
         }
         else if (com == 2){
-
+            signIn();
         }
         else if(com == 3){
             System.out.println("bye-bye");
@@ -127,7 +126,7 @@ public class  Client implements Runnable {
                 //todo handle
             }
             else if(((String) in.readObject()).equals("success")){
-
+                login(newUser.getId());
             }
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
@@ -175,6 +174,8 @@ public class  Client implements Runnable {
         User loggedUser;
         try {
             out.writeObject("get-user");
+            Thread.sleep(500);
+            out.writeObject(id);
             Thread.sleep(500);
             loggedUser = (User) in.readObject();
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
