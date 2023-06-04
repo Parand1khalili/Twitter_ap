@@ -66,10 +66,17 @@ class ClientHandler implements Runnable{
                 }
                 else if(command.equals("profile")){
                     User x = (User)in.readObject();
-                    profile(x=(User)in.readObject());
+                    profile(x);
                 }
                 else if(command.equals("edit-profile")){
-                   // editProfile();todo
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    editProfile(x,y);
+                }
+                else if(command.equals("edit-header")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    editHeader(x,y);
                 }
                 else if(command.equals("get-user")){
                     getUser((String) in.readObject());
@@ -146,7 +153,7 @@ class ClientHandler implements Runnable{
         while (resultSet.next()){
             if(resultSet.getString(1).equals(theUser.getId())){
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13));
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
                 out.writeObject(theProfile);
                 return;
             }
@@ -158,14 +165,28 @@ class ClientHandler implements Runnable{
         ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
         while (resultSet.next()){
             if(resultSet.getString(1).equals(theUser.getId())){
-                statement.executeUpdate("INSERT INTO user(profilePicture)"+theUser.getProfPicName());
+                statement.executeUpdate("INSERT INTO user(profilePicture)"+"VALUES "+prof);
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13));
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
                 out.writeObject(theProfile);
                 return;
             }
         }
 
+    }
+    public static void editHeader(User theUser,String header) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                statement.executeUpdate("INSERT INTO user(header)"+"VALUES "+header);
+                Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                out.writeObject(theProfile);
+                return;
+            }
+        }
     }
     public static void getUser(String id) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");

@@ -17,6 +17,8 @@ public class User implements Serializable {
     private String profPicName;
     private String headerPicName;
     private String bio;
+    private String location;
+    private String web;
 
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
                 String country, String birthDate) {
@@ -81,5 +83,17 @@ public class User implements Serializable {
 
     public String getHeaderPicName() {
         return headerPicName;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getWeb() {
+        return web;
     }
 }

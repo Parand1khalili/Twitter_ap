@@ -12,10 +12,12 @@ public class Profile {
     private ArrayList<String> followings=new ArrayList<>();
     private ArrayList<Tweet> tweets=new ArrayList<>();
 
-    public Profile(String picLink, String headerLink, String bio) {
+    public Profile(String picLink, String headerLink, String bio,String location,String web) {
         this.picLink = picLink;
         this.headerLink = headerLink;
         this.bio = bio;
+        this.location=location;
+        this.web=web;
     }
 
     public String getPicLink() {
