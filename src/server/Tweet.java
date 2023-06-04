@@ -11,12 +11,22 @@ public class Tweet implements Serializable {
     private int retweet;
     private int comment;
     private Date date;
+    private int isFavStar;
 
     public Tweet(String text, String picLink, String userId) {
         this.text = text;
         this.picLink = picLink;
         this.userId = userId;
         this.date = new Date();
+        this.isFavStar=0;
+    }
+
+    public int getIsFavStar() {
+        return isFavStar;
+    }
+
+    public void setIsFavStar(int isFavStar) {
+        this.isFavStar = isFavStar;
     }
 
     public String getText() {

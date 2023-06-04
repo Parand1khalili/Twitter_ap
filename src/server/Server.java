@@ -128,7 +128,6 @@ class ClientHandler implements Runnable{
     public ClientHandler(Socket client) {
         this.client=client;
     }
-
     public static void signUpServer(User theUser) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
@@ -193,7 +192,12 @@ class ClientHandler implements Runnable{
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                         resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
                 out.writeObject(theProfile);
-                return;
+            }
+        }
+        ResultSet resultSet1 = statement.executeQuery("SELECT * FROM Tweet");
+        while (resultSet1.next()){
+            if(resultSet1.getString(3).equals(theUser.getId())){
+                out.writeObject(resultSet1);
             }
         }
     }
@@ -386,6 +390,9 @@ class ClientHandler implements Runnable{
         String respond="success";
         out.writeObject(respond);
     }
+//    public static void showTweet(){
+//
+//    }
 }
 
 
