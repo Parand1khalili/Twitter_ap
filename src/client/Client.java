@@ -46,11 +46,15 @@ public class  Client implements Runnable {
         }
     }
 
-    public static void signUp() throws IOException {
+    public static void signUp() {
         Scanner scanner=new Scanner(System.in);
         ArrayList<String> newUserArgs = new ArrayList<String>();
         System.out.println("username:");
         newUserArgs.add(scanner.nextLine());
+        while (newUserArgs.get(0) == null){
+            System.out.println("please enter username!!!");
+            newUserArgs.set(0,scanner.nextLine());
+        }
         System.out.println("firstname");
         newUserArgs.add(scanner.nextLine());
         System.out.println("lastname:");
@@ -105,8 +109,13 @@ public class  Client implements Runnable {
         newUserArgs.add(scanner.nextLine());
         User newUser = new User(newUserArgs.get(0),newUserArgs.get(1),newUserArgs.get(2),newUserArgs.get(3),
                 newUserArgs.get(4),newUserArgs.get(5),newUserArgs.get(7),newUserArgs.get(8));
-        out.writeObject("sign-up");
-        out.writeObject(newUser);
+        try {
+            out.writeObject("sign-up");
+            Thread.sleep(500);
+            out.writeObject(newUser);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         try {
             if(((String) in.readObject()).equals("duplicate-id")){
                 //todo handle
@@ -118,10 +127,80 @@ public class  Client implements Runnable {
                 //todo handle
             }
             else if(((String) in.readObject()).equals("success")){
+
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void signIn (){
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<String> theUserArgs = new ArrayList<>();
+        System.out.println("username:");
+        theUserArgs.add(scanner.nextLine());
+        while (theUserArgs.get(0) == null){
+            System.out.println("please enter username!!!");
+            theUserArgs.set(0,scanner.nextLine());
+        }
+        System.out.println("password:");
+        theUserArgs.add(scanner.nextLine());
+        while (theUserArgs.get(1) == null){
+            System.out.println("please enter your password!!!");
+            theUserArgs.set(1,scanner.nextLine());
+        }
+        User theUser = new User(theUserArgs.get(0),theUserArgs.get(1));
+        try {
+            out.writeObject("sign-in");
+            Thread.sleep(500);
+            out.writeObject(theUser);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            if(((String) in.readObject()).equals("not-found")){
                 //todo handle
             }
-        } catch (ClassNotFoundException e) {
+            else if(((String) in.readObject()).equals("wrong-pass")){
+                //todo handle
+            }
+            else if(((String) in.readObject()).equals("success")){
+                login(theUser.getId());
+            }
+        } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+    public static void login(String id){
+        Scanner scanner = new Scanner(System.in);
+        User loggedUser;
+        try {
+            out.writeObject("get-user");
+            Thread.sleep(500);
+            loggedUser = (User) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("welcome "  + loggedUser.getFirstName() +" !");
+        System.out.print("1.profile\n2.time line\n3.new tweet\n4.search\n5.logout\n");
+        int choice = scanner.nextInt();
+        if(choice == 1){
+            // profile az server
+        }
+        else if (choice == 2){
+            //TODO
+        }
+        else if (choice == 3){
+            //TODO
+        }
+        else if (choice == 4){
+            //TODO
+        }
+        else if (choice == 5){
+            try {
+                ShowMenu();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     public static boolean emailValidity(String email){
