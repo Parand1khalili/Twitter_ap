@@ -174,6 +174,7 @@ class ClientHandler implements Runnable{
         }
 
     }
+
     public static void editHeader(User theUser,String header) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
