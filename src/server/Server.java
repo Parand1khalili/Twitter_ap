@@ -105,6 +105,7 @@ class ClientHandler implements Runnable{
                 else if(command.equals("search")){
                     String x=(String) in.readObject();
                     search(x);
+
                 }
 
             }
