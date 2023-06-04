@@ -19,7 +19,16 @@ public class User implements Serializable {
     private String bio;
     private String location;
     private String web;
+    private String followers;
+    private String following;
 
+    public String getFollowers() {
+        return followers;
+    }
+
+    public String getFollowing() {
+        return following;
+    }
 
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
                 String country, String birthDate) {

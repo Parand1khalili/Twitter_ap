@@ -96,6 +96,11 @@ class ClientHandler implements Runnable{
                     String y=(String) in.readObject();
                     editProf(x,y,3);
                 }
+                else if(command.equals("follow")){
+                    User x=(User) in.readObject();
+                    String y=(String) in.readObject();
+                    follow(x,y);
+                }
 
             }
         } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -190,8 +195,6 @@ class ClientHandler implements Runnable{
         }
 
     }
-
-
     public static void editHeader(User theUser,String header) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
@@ -256,6 +259,32 @@ class ClientHandler implements Runnable{
                             resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
                     out.writeObject(theProfile);
                     return;
+                }
+            }
+        }
+    }
+    public static void follow(User theUser,String followingId) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                if(resultSet.getString(17).contains(followingId)){
+                    respond="already-followed";
+                    out.writeObject(respond);
+                    return;
+                }
+            }
+            else{
+                statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+theUser.getFollowing()+"="+followingId);
+                while (resultSet.next()){
+                    if(resultSet.getString(1).equals(followingId)){
+                        statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+resultSet.getString(16)+"="+theUser.getId());
+                        respond="success";
+                        out.writeObject(respond);
+                        return;
+                    }
                 }
             }
         }
