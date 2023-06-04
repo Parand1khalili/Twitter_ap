@@ -41,7 +41,12 @@ public class  Client implements Runnable {
         }
         else if(com == 3){
             System.out.println("bye-bye");
+            out.writeObject("exit");
             return;
+        }
+        else {
+            System.out.println("please read your options again");
+            ShowMenu();
         }
     }
 
@@ -194,7 +199,7 @@ public class  Client implements Runnable {
             //TODO
         }
         else if (choice == 4){
-            //TODO
+            search(loggedUser);
         }
         else if (choice == 5){
             try {
@@ -206,8 +211,17 @@ public class  Client implements Runnable {
     }
     public static void profile (User loggedUser){
         Scanner scanner = new Scanner(System.in);
+        Profile loggedUserProfile;
+        try {
+            out.writeObject("profile");
+            Thread.sleep(50);
+            loggedUserProfile = (Profile) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println(loggedUser.getFirstName() + " " + loggedUser.getLastName());
-        System.out.print("1.edit profile\n2.edit header\n3.edit bio\n4.edit web\n5.edit location\n6.back\n");
+        System.out.print("1.edit profile\n2.edit header\n3.edit bio\n4.edit web\n" +
+                "5.edit location\n6.back\n7.show profile\n");
         int choice = scanner.nextInt();
         if(choice == 1){
             editProfile(loggedUser);
@@ -227,21 +241,162 @@ public class  Client implements Runnable {
         else if(choice == 6){
             login(loggedUser.getId());
         }
-    }
-    public static void editProfile(User loggedUser){
+        else if(choice == 7){
+            showProfile(loggedUserProfile,loggedUser);
+        }
 
     }
-    public static void editHeader(User loggedUser){}
-    public static void editBio(User loggedUser){}
-    public static void editWeb(User logedUser){}
-    public static void editLocation(User loggedUser){}
+    public static void editProfile(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        String newProfPicPath;
+        System.out.println("please enter the path of the new profile picture");
+        newProfPicPath = scanner.nextLine();
+        while (newProfPicPath==null){
+            System.out.println("please enter a valid path!");
+            newProfPicPath = scanner.nextLine();
+        }
+        // check size of picture
+        try {
+            out.writeObject("edit-profile");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            out.writeObject(newProfPicPath);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    public static void editHeader(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        String newHeaderPicture;
+        System.out.println("please enter the path of the new header picture");
+        newHeaderPicture = scanner.nextLine();
+        while (newHeaderPicture==null){
+            System.out.println("please enter a valid path!");
+            newHeaderPicture = scanner.nextLine();
+        }
+        // check size of picture
+        try {
+            out.writeObject("edit-header");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            out.writeObject(newHeaderPicture);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void editBio(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        String newBio;
+        System.out.println("please enter the new bio");
+        newBio = scanner.nextLine();
+        while (newBio==null){
+            System.out.println("please enter a valid bio!");
+            newBio = scanner.nextLine();
+        }
+        while (newBio.length() > 160){
+            System.out.println("your text should be less than 160 characters!");
+            newBio = scanner.nextLine();
+        }
+        try {
+            out.writeObject("edit-bio");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            out.writeObject(newBio);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void editWeb(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        String newWeb;
+        System.out.println("please enter the new web");
+        newWeb = scanner.nextLine();
+        while (newWeb==null){
+            System.out.println("please enter a valid web!");
+            newWeb = scanner.nextLine();
+        }
+        try {
+            out.writeObject("edit-web");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            out.writeObject(newWeb);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void editLocation(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        String newLoc;
+        System.out.println("please enter the new location");
+        newLoc = scanner.nextLine();
+        while (newLoc==null){
+            System.out.println("please enter a valid text!");
+            newLoc = scanner.nextLine();
+        }
+        try {
+            out.writeObject("edit-location");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            out.writeObject(newLoc);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void showProfile(Profile loggedUserProfile,User loggedUser){
+        System.out.println(loggedUser.getFirstName()+" "+loggedUser.getLastName());
+        System.out.println(loggedUser.getId());
+        System.out.println("-----------------------------------------");
+        // show header
+        // show profile picture
+        System.out.println(loggedUserProfile.getBio());
+        System.out.println(loggedUserProfile.getLocation());
+        System.out.println(loggedUserProfile.getWeb());
+        int count = 1;
+        for (Tweet tweet : loggedUserProfile.getTweets()){
+            System.out.println(tweet);
+        }
+    }
+    public static void search(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("please enter your text");
+        String searchingWord = scanner.nextLine();
+        while (searchingWord==null){
+            System.out.println("please enter text in a valid way");
+            searchingWord = scanner.nextLine();
+        }
+        String answer;
+        try {
+            out.writeObject("search");
+            Thread.sleep(50);
+            out.writeObject(searchingWord);
+            Thread.sleep(50);
+            answer = (String) in.readObject();
+            if(answer.equals("found")){
+                ArrayList<User> res = (ArrayList<User>) in.readObject();
+                for ()
+            }
+            else if(answer.equals("not-found")){
+                System.out.println("no result");
+            }
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
     public static boolean emailValidity(String email){
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
-
     public static boolean checkPass(String pass){
         boolean isOkay=true;
         if(pass.length() < 8)

@@ -304,7 +304,7 @@ class ClientHandler implements Runnable{
             }
         }
     }
-    public static void search(String text) throws SQLException, IOException {
+    public static void search(String text) throws SQLException, IOException, InterruptedException {
         ArrayList <User> res=new ArrayList<>();
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
@@ -322,11 +322,12 @@ class ClientHandler implements Runnable{
         if(res.isEmpty()){
             respond="not-found";
             out.writeObject(respond);
-            return;
         }
         else{
+            respond="found";
+            out.writeObject(respond);
+            Thread.sleep(50);
             out.writeObject(res);
-            return;
         }
     }
     public static void unfollow(User theUser,String followingId) throws SQLException, IOException {
