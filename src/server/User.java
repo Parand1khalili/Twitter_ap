@@ -23,6 +23,11 @@ public class User implements Serializable {
     private String following;
     private int followerNum;
     private int followingNum;
+    private String blacklist;
+
+    public String getBlacklist() {
+        return blacklist;
+    }
 
     public String getFollowers() {
         return followers;

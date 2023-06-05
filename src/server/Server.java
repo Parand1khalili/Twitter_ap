@@ -499,6 +499,24 @@ class ClientHandler implements Runnable{
         }
         out.writeObject(res);
     }
+    public static void block(User theUser,User block) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSetUser = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        Boolean isFollowed = false;
+        while (resultSetUser.next()){
+            if(resultSetUser.getString(1).equals(theUser.getId()) &&
+                    resultSetUser.getString(20).contains(block.getId())){
+                respond="already-blocked";
+                out.writeObject(respond);
+                return;
+            }
+            else if(resultSetUser.getString(1).equals(theUser.getId())){
+                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+(theUser.getBlacklist()))
+            }
+        }
+    }
 }
 
 
