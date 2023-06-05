@@ -12,6 +12,7 @@ public class Tweet implements Serializable,Comparable<Tweet>{
     private int comment;
     private Date date;
     private int isFavStar;
+    private String likesIds;
 
     public Tweet(String text, String picLink, String userId) {
         this.text = text;
@@ -30,6 +31,10 @@ public class Tweet implements Serializable,Comparable<Tweet>{
         this.comment = comment;
         this.date = date;
         this.isFavStar = isFavStar;
+    }
+
+    public String getLikesIds() {
+        return likesIds;
     }
 
     public int getIsFavStar() {

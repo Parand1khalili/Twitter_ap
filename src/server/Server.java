@@ -124,7 +124,9 @@ class ClientHandler implements Runnable{
                     timeline(x);
                 }
                 else if(command.equals("like")){
-                    //TODO
+                    User x=(User) in.readObject();
+                    Tweet y=(Tweet) in.readObject();
+                    like(x,y);
                 }
 
             }
@@ -438,6 +440,28 @@ class ClientHandler implements Runnable{
         }
 
         out.writeObject(res);
+    }
+    public static void like(User theUser,Tweet theTweet) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        ResultSet resultSetTweet = statement.executeQuery("SELECT * FROM Tweet");
+        String respond;
+        while (resultSetTweet.next()){
+            if(resultSetTweet.equals(theTweet) && resultSetTweet.getString(9).contains(theUser.getId())){
+                respond="already-liked";
+                out.writeObject(respond);
+            }
+            else if(resultSetTweet.equals(theTweet) && ! resultSetTweet.getString(9).contains(theUser.getId())){
+                respond="success";
+                statement.executeUpdate("INSERT INTO Tweet(likedIds)"+"VALUES "+theTweet.getLikesIds()+"="+theUser.getId());
+                statement.executeUpdate("INSERT INTO Tweet(like)"+"VALUES "+(Integer.parseInt(resultSetTweet.getString(4))+1));
+                if(Integer.parseInt(resultSetTweet.getString(4))==10){
+                    statement.executeUpdate("INSERT INTO Tweet(isFavStar)"+"VALUES "+(theTweet.getIsFavStar()+1));
+                }
+                out.writeObject(respond);
+            }
+        }
     }
 }
 
