@@ -8,16 +8,29 @@ public class Profile {
     private String bio;
     private String location;
     private String web;
+    private int followerNum;
+    private int followingNum;
     private ArrayList<String> followers=new ArrayList<>();
     private ArrayList<String> followings=new ArrayList<>();
     private ArrayList<Tweet> tweets=new ArrayList<>();
 
-    public Profile(String picLink, String headerLink, String bio,String location,String web) {
+
+    public Profile(String picLink, String headerLink, String bio, String location, String web, int followerNum, int followingNum) {
         this.picLink = picLink;
         this.headerLink = headerLink;
         this.bio = bio;
-        this.location=location;
-        this.web=web;
+        this.location = location;
+        this.web = web;
+        this.followerNum = followerNum;
+        this.followingNum = followingNum;
+    }
+
+    public int getFollowerNum() {
+        return followerNum;
+    }
+
+    public int getFollowingNum() {
+        return followingNum;
     }
 
     public String getPicLink() {

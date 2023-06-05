@@ -46,10 +46,6 @@ public class User implements Serializable {
         this.followerNum=0;
         this.followingNum=0;
     }
-    public User(String id,String password){
-        this.id = id;
-        this.password = password;
-    }
 
     public int getFollowerNum() {
         return followerNum;
@@ -117,9 +113,5 @@ public class User implements Serializable {
 
     public String getWeb() {
         return web;
-    }
-    @Override
-    public String toString() {
-        return id +"\n"+ firstName + " " + lastName;
     }
 }
