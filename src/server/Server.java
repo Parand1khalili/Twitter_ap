@@ -72,9 +72,10 @@ class ClientHandler implements Runnable{
                 else if(command.equals("get-user")){
                     getUser((String) in.readObject());
                 }
-                else if(command.equals("profile")){
+                else if(command.equals("get-profile")){
                     User x = (User)in.readObject();
-                    getProfile(x);
+                    User y = (User)in.readObject();
+                    getProfile(x,y);
                 }
                 else if(command.equals("edit-profile")){
                     User x=(User) in.readObject();
@@ -197,22 +198,29 @@ class ClientHandler implements Runnable{
         respond="not-found";
         out.writeObject(respond);
     }
-    public static void getProfile(User theUser) throws SQLException, IOException {
+    public static void getProfile(User theUser,User wanted) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
-        while (resultSet.next()){
-            if(resultSet.getString(1).equals(theUser.getId())){
-                Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
-                        resultSet.getInt(18),resultSet.getInt(19));
-                out.writeObject(theProfile);
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");//wantedUser
+        ResultSet resultSet1 = statement.executeQuery("SELECT * FROM user");//theUser
+        while (resultSet1.next()){
+            if(resultSet1.getString(1).equals(theUser.getId())){
+                if(!resultSet1.getString(20).contains(wanted.getId())){
+                    while (resultSet.next()){
+                        if(resultSet.getString(1).equals(wanted.getId())){
+                            Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
+                                    resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                                    resultSet.getInt(18),resultSet.getInt(19));
+                            out.writeObject(theProfile);
+                        }
+                    }
+                }
             }
         }
-        ResultSet resultSet1 = statement.executeQuery("SELECT * FROM Tweet");
-        while (resultSet1.next()){
-            if(resultSet1.getString(3).equals(theUser.getId())){
-                out.writeObject(resultSet1);
+        ResultSet resultSetTweet = statement.executeQuery("SELECT * FROM Tweet");
+        while (resultSetTweet.next()){
+            if(resultSetTweet.getString(3).equals(wanted.getId())){
+                out.writeObject(resultSetTweet);
             }
         }
     }
