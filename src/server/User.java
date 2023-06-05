@@ -21,6 +21,8 @@ public class User implements Serializable {
     private String web;
     private String followers;
     private String following;
+    private int followerNum;
+    private int followingNum;
 
     public String getFollowers() {
         return followers;
@@ -41,6 +43,16 @@ public class User implements Serializable {
         this.country = country;
         this.birthDate = birthDate;
         this.registerDate = new Date();
+        this.followerNum=0;
+        this.followingNum=0;
+    }
+
+    public int getFollowerNum() {
+        return followerNum;
+    }
+
+    public int getFollowingNum() {
+        return followingNum;
     }
 
     public String getId() {

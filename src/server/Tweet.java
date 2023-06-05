@@ -3,7 +3,7 @@ package server;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Tweet implements Serializable {
+public class Tweet implements Serializable,Comparable<Tweet>{
     private String text;
     private String picLink;
     private String userId;
@@ -19,6 +19,17 @@ public class Tweet implements Serializable {
         this.userId = userId;
         this.date = new Date();
         this.isFavStar=0;
+    }
+
+    public Tweet(String text, String picLink, String userId, int likes, int retweet, int comment, Date date, int isFavStar) {
+        this.text = text;
+        this.picLink = picLink;
+        this.userId = userId;
+        this.likes = likes;
+        this.retweet = retweet;
+        this.comment = comment;
+        this.date = date;
+        this.isFavStar = isFavStar;
     }
 
     public int getIsFavStar() {
@@ -83,5 +94,10 @@ public class Tweet implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public int compareTo(Tweet o) {
+        return this.date.compareTo(o.getDate());
     }
 }

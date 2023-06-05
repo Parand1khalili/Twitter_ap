@@ -3,8 +3,11 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.sql.*;
 import java.util.concurrent.Executors;
@@ -71,7 +74,7 @@ class ClientHandler implements Runnable{
                 }
                 else if(command.equals("profile")){
                     User x = (User)in.readObject();
-                    profile(x);
+                    getProfile(x);
                 }
                 else if(command.equals("edit-profile")){
                     User x=(User) in.readObject();
@@ -116,11 +119,16 @@ class ClientHandler implements Runnable{
                     Tweet x=(Tweet) in.readObject();
                     newTweet(x);
                 }
+                else if(command.equals("timeline")){
+                    User x=(User) in.readObject();
+                    timeline(x);
+                }
+                else if(command.equals("like")){
+                    //TODO
+                }
 
             }
-        } catch (IOException | ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | ClassNotFoundException | SQLException | InterruptedException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
@@ -183,7 +191,7 @@ class ClientHandler implements Runnable{
         respond="not-found";
         out.writeObject(respond);
     }
-    public static void profile(User theUser) throws SQLException, IOException {
+    public static void getProfile(User theUser) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
@@ -299,9 +307,11 @@ class ClientHandler implements Runnable{
             }
             else{
                 statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+theUser.getFollowing()+"="+followingId);
+                statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()+1));
                 while (resultSet.next()){
                     if(resultSet.getString(1).equals(followingId)){
                         statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+resultSet.getString(16)+"="+theUser.getId());
+                        statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(Integer.parseInt(resultSet.getString(18))+1));
                         respond="success";
                         out.writeObject(respond);
                         return;
@@ -360,6 +370,7 @@ class ClientHandler implements Runnable{
                     }
                     list.remove(i);
                     statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list);
+                    statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()-1));
                 }
             }
         }
@@ -376,6 +387,7 @@ class ClientHandler implements Runnable{
                 }
                 list.remove(i);
                 statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
+                statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(Integer.parseInt(resultSet.getString(18))-1));
                 respond="success";
                 out.writeObject(respond);
                 return;
@@ -390,9 +402,43 @@ class ClientHandler implements Runnable{
         String respond="success";
         out.writeObject(respond);
     }
-//    public static void showTweet(){
-//
-//    }
+    public static void timeline(User theUser) throws SQLException, ParseException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
+        ResultSet resultSetTweet = statement.executeQuery("SELECT * FROM Tweet");
+        ArrayList <Tweet> res=new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+        //check followings
+        while (resultSet.next()){
+            if(resultSet.getString(1).equals(theUser.getId())){
+                while (resultSetTweet.next()){
+                    if(resultSet.getString(17).contains(resultSetTweet.getString(3))){
+                        Tweet theTweet = new Tweet(resultSetTweet.getString(1),resultSet.getString(2),
+                                resultSet.getString(3),Integer.parseInt(resultSet.getString(4)),Integer.parseInt(resultSet.getString(5)),
+                               Integer.parseInt( resultSet.getString(6)),format.parse( resultSet.getString(7)) ,Integer.parseInt(resultSet.getString(8)) );
+                        res.add(theTweet);
+                    }
+                }
+            }
+        }
+
+        //check favstars
+        //check if is blocked //TODO
+        while (resultSetTweet.next()){
+            if(resultSetTweet.getString(8).equals("1")){
+                Tweet theTweet = new Tweet(resultSetTweet.getString(1),resultSet.getString(2),
+                        resultSet.getString(3),Integer.parseInt(resultSet.getString(4)),Integer.parseInt(resultSet.getString(5)),
+                        Integer.parseInt( resultSet.getString(6)),format.parse( resultSet.getString(7)) ,Integer.parseInt(resultSet.getString(8)) );
+                if(!res.contains(theTweet)){
+                    res.add(theTweet);
+                }
+            }
+        }
+
+        out.writeObject(res);
+    }
 }
 
 
