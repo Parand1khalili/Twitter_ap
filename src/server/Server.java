@@ -128,6 +128,10 @@ class ClientHandler implements Runnable{
                     Tweet y=(Tweet) in.readObject();
                     like(x,y);
                 }
+                else if(command.equals("hashtag")){
+                    String x=(String) in.readObject();
+                    searchHashtag(x);
+                }
 
             }
         } catch (IOException | ClassNotFoundException | SQLException | InterruptedException | ParseException e) {
@@ -200,7 +204,8 @@ class ClientHandler implements Runnable{
         while (resultSet.next()){
             if(resultSet.getString(1).equals(theUser.getId())){
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                        resultSet.getInt(18),resultSet.getInt(19));
                 out.writeObject(theProfile);
             }
         }
@@ -219,7 +224,8 @@ class ClientHandler implements Runnable{
             if(resultSet.getString(1).equals(theUser.getId())){
                 statement.executeUpdate("INSERT INTO user(profilePicture)"+"VALUES "+prof);
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                        resultSet.getInt(18),resultSet.getInt(19));
                 out.writeObject(theProfile);
                 return;
             }
@@ -234,7 +240,8 @@ class ClientHandler implements Runnable{
             if(resultSet.getString(1).equals(theUser.getId())){
                 statement.executeUpdate("INSERT INTO user(header)"+"VALUES "+header);
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                        resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                        resultSet.getInt(18),resultSet.getInt(19));
                 out.writeObject(theProfile);
                 return;
             }
@@ -263,7 +270,8 @@ class ClientHandler implements Runnable{
                 if(resultSet.getString(1).equals(theUser.getId())){
                     statement.executeUpdate("INSERT INTO user(bio)"+"VALUES "+text);
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
+                            resultSet.getInt(18),resultSet.getInt(19));
                     out.writeObject(theProfile);
                     return;
                 }
@@ -275,7 +283,8 @@ class ClientHandler implements Runnable{
                 if(resultSet.getString(1).equals(theUser.getId())){
                     statement.executeUpdate("INSERT INTO user(location)"+"VALUES "+text);
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15)
+                    ,resultSet.getInt(18),resultSet.getInt(19));
                     out.writeObject(theProfile);
                     return;
                 }
@@ -287,7 +296,8 @@ class ClientHandler implements Runnable{
                 if(resultSet.getString(1).equals(theUser.getId())){
                     statement.executeUpdate("INSERT INTO user(web)"+"VALUES "+text);
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
-                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15));
+                            resultSet.getString(13),resultSet.getString(14),resultSet.getString(15)
+                    ,resultSet.getInt(18),resultSet.getInt(19));
                     out.writeObject(theProfile);
                     return;
                 }
@@ -462,6 +472,24 @@ class ClientHandler implements Runnable{
                 out.writeObject(respond);
             }
         }
+    }
+    public static void searchHashtag(String hashtag) throws SQLException, ParseException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM Tweet");
+        ArrayList<Tweet> res=new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        while (resultSet.next()){
+            if(resultSet.getString(1).contains("#"+hashtag)){
+                Tweet theTweet = new Tweet(resultSet.getString(1),resultSet.getString(2),
+                        resultSet.getString(3),Integer.parseInt(resultSet.getString(4)),
+                        Integer.parseInt(resultSet.getString(5)),
+                        Integer.parseInt( resultSet.getString(6)),format.parse( resultSet.getString(7))
+                        ,Integer.parseInt(resultSet.getString(8)) );
+                res.add(theTweet);
+            }
+        }
+        out.writeObject(res);
     }
 }
 
