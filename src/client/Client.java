@@ -379,7 +379,10 @@ public class  Client implements Runnable {
             answer = (String) in.readObject();
             if(answer.equals("found")){
                 ArrayList<User> res = (ArrayList<User>) in.readObject();
-                for ()
+                for (int i=1;i<= res.size();i++){
+                    System.out.println(i + "." + res.get(i));
+                }
+
             }
             else if(answer.equals("not-found")){
                 System.out.println("no result");
