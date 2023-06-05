@@ -197,7 +197,7 @@ public class  Client implements Runnable {
             ownProfile(loggedUser);
         }
         else if (choice == 2){
-            //TODO
+            timeLine(loggedUser);
         }
         else if (choice == 3){
             newTweet(loggedUser);
@@ -394,6 +394,7 @@ public class  Client implements Runnable {
     public static void search(User loggedUser){
         Scanner scanner = new Scanner(System.in);
         System.out.println("SEARCH:");
+        // todo choose between hashtag and user | piade sazi hashtag
         System.out.println("please enter your text");
         String searchingWord = scanner.nextLine();
         while (searchingWord==null){
@@ -573,7 +574,6 @@ public class  Client implements Runnable {
             }
         }
     }
-
     public static void showTweet(Tweet theTweet,User userWhoIsWatching){
         Scanner scanner = new Scanner(System.in);
         User theUser;
@@ -738,6 +738,41 @@ public class  Client implements Runnable {
             System.out.println("tweet uploaded");
         }
         login(loggedUser.getId());
+    }
+    public static void timeLine(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Tweet> tweets;
+        try {
+            out.writeObject("timeline");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            tweets = (ArrayList<Tweet>) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        for (int i=1;i<=tweets.size();i++){
+            System.out.println(i+"."+tweets.get(tweets.size()-i));
+        }
+        System.out.println("1.select a tweet\t2.back");
+        int choice=scanner.nextInt();
+        while (choice!=1 && choice!=2){
+            System.out.println("invalid command try again");
+            choice = scanner.nextInt();
+        }
+        if(choice==2){
+            login(loggedUser.getId());
+        }
+        else {
+            System.out.println("please enter number of your tweet");
+            int selectedTweet =0;
+            selectedTweet = scanner.nextInt();
+            while (selectedTweet<=0 || selectedTweet > tweets.size()){
+                System.out.println("invalid command try again");
+                selectedTweet = scanner.nextInt();
+            }
+            showTweet(tweets.get(tweets.size()-selectedTweet),loggedUser);
+        }
     }
     public static long dateDifference(Date tweetDate){
         Date now = new Date();
