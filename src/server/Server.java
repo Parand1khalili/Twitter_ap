@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.sql.*;
 import java.util.concurrent.Executors;
+import java.util.Date;
+
 
 public class Server implements Runnable{
 
@@ -142,6 +144,22 @@ class ClientHandler implements Runnable{
                     User x=(User) in.readObject();
                     User y=(User) in.readObject();
                     unblock(x,y);
+                }
+                else if (command.equals("retweet")){
+                    User x=(User) in.readObject();
+                    Tweet y=(Tweet) in.readObject();
+                    retweet(x,y);
+                }
+                else if(command.equals("comment")){
+                    //reply
+                    User x=(User) in.readObject();
+                    Tweet y=(Tweet) in.readObject();
+                    String z=(String) in.readObject();
+                    addComment(x,y,z);
+                }
+                else if(command.equals("show-comments")){
+                    Tweet x=(Tweet) in.readObject();
+                    showComments(x);
                 }
 
             }
@@ -611,11 +629,10 @@ class ClientHandler implements Runnable{
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
         ResultSet resultSetUser = statement.executeQuery("SELECT * FROM user");
-        ResultSet resultSetUnblock = statement.executeQuery("SELECT * FROM user");
         String respond;
         while (resultSetUser.next()){
             if(resultSetUser.getString(1).equals(theUser.getId()) && !resultSetUser.getString(20).contains(unblock.getId())){
-                respond="you-didnt-block-this-user";
+                respond="have-not-blocked";
                 out.writeObject(respond);
                 return;
             }
@@ -633,6 +650,40 @@ class ClientHandler implements Runnable{
                 statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+list);
                 respond="success";
                 out.writeObject(respond);
+                return;
+            }
+        }
+    }
+    public static void retweet(User theUser,Tweet theTweet) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("INSERT INTO Tweet(text, picture, userid, like, retweet, comment, date) "+"VALUES "
+                +theTweet.getText()+theTweet.getPicLink()+theUser.getId()+theTweet.getLikes()+theTweet.getRetweet()+theTweet.getComment()+new Date());
+        statement.executeUpdate("INSERT INTO Tweet(retweet)"+"VALUES "+(theTweet.getRetweet()+1));
+        String respond="success";
+        out.writeObject(respond);
+    }
+    public static void addComment(User theUser,Tweet theTweet,String comment) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("INSERT INTO Tweet(comment)"+"VALUES "+(theTweet.getComment()+1));
+        String respond;
+        statement.executeUpdate("INSERT INTO Tweet(comments)"+"VALUES "+"@"+theUser.getId()+"="+comment);
+        //@id=comment
+        statement.executeUpdate("INSERT INTO Tweet(comment)"+"VALUES "+(theTweet.getComment()+1));
+        respond="success";
+        out.writeObject(respond);
+    }
+    public static void showComments(Tweet tweet) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet= statement.executeQuery("SELECT * FROM Tweet");
+        while (resultSet.next()){
+            if(resultSet.equals(tweet)){
+                String str=resultSet.getString(10);
+                String[] arr = str.split("@");
+                ArrayList<String> list = new ArrayList<>(Arrays.asList(arr));
+                out.writeObject(list);
                 return;
             }
         }
