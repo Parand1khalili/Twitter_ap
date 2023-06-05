@@ -133,6 +133,16 @@ class ClientHandler implements Runnable{
                     String x=(String) in.readObject();
                     searchHashtag(x);
                 }
+                else if(command.equals("block")){
+                    User x=(User) in.readObject();
+                    User y=(User) in.readObject();
+                    block(x,y);
+                }
+                else if(command.equals("unblock")){
+                    User x=(User) in.readObject();
+                    User y=(User) in.readObject();
+                    unblock(x,y);
+                }
 
             }
         } catch (IOException | ClassNotFoundException | SQLException | InterruptedException | ParseException e) {
@@ -444,19 +454,23 @@ class ClientHandler implements Runnable{
             }
         }
 
-        //check favstars
-        //check if is blocked //TODO
+        //check favstars and blocks
         while (resultSetTweet.next()){
             if(resultSetTweet.getString(8).equals("1")){
                 Tweet theTweet = new Tweet(resultSetTweet.getString(1),resultSet.getString(2),
                         resultSet.getString(3),Integer.parseInt(resultSet.getString(4)),Integer.parseInt(resultSet.getString(5)),
                         Integer.parseInt( resultSet.getString(6)),format.parse( resultSet.getString(7)) ,Integer.parseInt(resultSet.getString(8)) );
                 if(!res.contains(theTweet)){
-                    res.add(theTweet);
+                    while (resultSet.next()){
+                        if(resultSet.getString(1).equals(theUser.getId())){
+                            if(!resultSet.getString(20).contains(theTweet.getUserId())){
+                            res.add(theTweet);
+                            }
+                        }
+                    }
                 }
             }
         }
-
         out.writeObject(res);
     }
     public static void like(User theUser,Tweet theTweet) throws SQLException, IOException {
@@ -503,8 +517,8 @@ class ClientHandler implements Runnable{
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
         ResultSet resultSetUser = statement.executeQuery("SELECT * FROM user");
-        String respond;
-        Boolean isFollowed = false;
+        ResultSet resultSetBlock = statement.executeQuery("SELECT * FROM user");
+        String respond ;
         while (resultSetUser.next()){
             if(resultSetUser.getString(1).equals(theUser.getId()) &&
                     resultSetUser.getString(20).contains(block.getId())){
@@ -513,9 +527,88 @@ class ClientHandler implements Runnable{
                 return;
             }
             else if(resultSetUser.getString(1).equals(theUser.getId())){
-                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+(theUser.getBlacklist()))
+                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+(theUser.getBlacklist())+"="+block.getId());
+                respond="success";
+                out.writeObject(respond);
             }
         }
+        while (resultSetUser.next()){
+            if(resultSetUser.getString(1).equals(theUser.getId()) && resultSetUser.getString(16).contains(block.getId())){
+                //block is following the user
+                //block should be removed from the user followers
+                int i;
+                String[] follower=resultSetUser.getString(16).split("=");
+                ArrayList<String> list = new ArrayList<String>(Arrays.asList(follower));
+                for( i=0;i<list.size();i++){
+                    if(list.equals(block.getId())){
+                        break;
+                    }
+                    i++;
+                }
+                list.remove(i);
+                statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
+                statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(theUser.getFollowerNum()-1));
+
+                //the user should be removed from the block followings
+                while (resultSetBlock.next()){
+                    if(resultSetBlock.getString(1).equals(block.getId())){
+                        int j;
+                        String[] followings=resultSetUser.getString(17).split("=");
+                        ArrayList<String> list2 = new ArrayList<String>(Arrays.asList(followings));
+                        for( j=0;j<list2.size();j++){
+                            if(list2.equals(theUser.getId())){
+                                break;
+                            }
+                            j++;
+                        }
+                        list2.remove(j);
+                        statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list2);
+                        statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(block.getFollowingNum()-1));
+                    }
+                }
+            }
+            else if(resultSetUser.getString(1).equals(theUser.getId()) && resultSetUser.getString(17).contains(block.getId())){
+                //user is following block
+                //user should be removed from the block followers
+                while (resultSetBlock.next()){
+                    if(resultSetBlock.getString(1).equals(block.getId())){
+                        int i;
+                        String[] follower=resultSetBlock.getString(16).split("=");
+                        ArrayList<String> list = new ArrayList<String>(Arrays.asList(follower));
+                        for( i=0;i<list.size();i++){
+                            if(list.equals(theUser.getId())){
+                                break;
+                            }
+                            i++;
+                        }
+                        list.remove(i);
+                        statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
+                        statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(block.getFollowerNum()-1));
+                    }
+                }
+
+                //block should be removed from the user followings
+                while (resultSetUser.next()){
+                    if(resultSetUser.getString(1).equals(theUser.getId())){
+                        int j;
+                        String[] followings=resultSetUser.getString(17).split("=");
+                        ArrayList<String> list2 = new ArrayList<String>(Arrays.asList(followings));
+                        for( j=0;j<list2.size();j++){
+                            if(list2.equals(block.getId())){
+                                break;
+                            }
+                            j++;
+                        }
+                        list2.remove(j);
+                        statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list2);
+                        statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()-1));
+                    }
+                }
+            }
+        }
+    }
+    public static void unblock(User thUser,User unblock){
+
     }
 }
 
