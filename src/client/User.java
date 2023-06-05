@@ -21,6 +21,8 @@ public class User implements Serializable {
     private String web;
     private String followers;
     private String following;
+    private int followerNum;
+    private int followingNum;
 
     public String getFollowers() {
         return followers;
@@ -29,7 +31,6 @@ public class User implements Serializable {
     public String getFollowing() {
         return following;
     }
-
 
     public User(String id, String firstName, String lastName, String email, String phoneNumber, String password,
                 String country, String birthDate) {
@@ -40,12 +41,22 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.country = country;
-        this.birthDate = birthDate ;
+        this.birthDate = birthDate;
         this.registerDate = new Date();
+        this.followerNum=0;
+        this.followingNum=0;
     }
     public User(String id,String password){
         this.id = id;
         this.password = password;
+    }
+
+    public int getFollowerNum() {
+        return followerNum;
+    }
+
+    public int getFollowingNum() {
+        return followingNum;
     }
 
     public String getId() {
@@ -106,5 +117,9 @@ public class User implements Serializable {
 
     public String getWeb() {
         return web;
+    }
+    @Override
+    public String toString() {
+        return id +"\n"+ firstName + " " + lastName;
     }
 }

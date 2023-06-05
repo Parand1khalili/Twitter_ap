@@ -211,14 +211,6 @@ public class  Client implements Runnable {
     }
     public static void profile (User loggedUser){
         Scanner scanner = new Scanner(System.in);
-        Profile loggedUserProfile;
-        try {
-            out.writeObject("profile");
-            Thread.sleep(50);
-            loggedUserProfile = (Profile) in.readObject();
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
         System.out.println(loggedUser.getFirstName() + " " + loggedUser.getLastName());
         System.out.print("1.edit profile\n2.edit header\n3.edit bio\n4.edit web\n" +
                 "5.edit location\n6.back\n7.show profile\n");
@@ -242,7 +234,7 @@ public class  Client implements Runnable {
             login(loggedUser.getId());
         }
         else if(choice == 7){
-            showProfile(loggedUserProfile,loggedUser);
+            showProfile(loggedUser);
         }
 
     }
@@ -348,8 +340,21 @@ public class  Client implements Runnable {
             throw new RuntimeException(e);
         }
     }
-    public static void showProfile(Profile loggedUserProfile,User loggedUser){
-        System.out.println(loggedUser.getFirstName()+" "+loggedUser.getLastName());
+    public static void showProfile(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        Profile loggedUserProfile;
+        ArrayList<Tweet> res;
+        try {
+            out.writeObject("get-profile");
+            Thread.sleep(50);
+            out.writeObject(loggedUser);
+            Thread.sleep(50);
+            loggedUserProfile = (Profile) in.readObject();
+            res = (ArrayList<Tweet>) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(loggedUser.getFirstName() + " " + loggedUser.getLastName());
         System.out.println(loggedUser.getId());
         System.out.println("-----------------------------------------");
         // show header
@@ -357,9 +362,29 @@ public class  Client implements Runnable {
         System.out.println(loggedUserProfile.getBio());
         System.out.println(loggedUserProfile.getLocation());
         System.out.println(loggedUserProfile.getWeb());
-        int count = 1;
-        for (Tweet tweet : loggedUserProfile.getTweets()){
-            System.out.println(tweet);
+        String choice;
+        for (int i = res.size()-1; i >=0 ; i--) {
+            System.out.println(res.size()-i + "." + res.get(i));
+        }
+        System.out.println("\na.select a tweet\nb.back");
+        choice = scanner.nextLine();
+        while (!choice.equals("a") && !choice.equals("b")) {
+            System.out.println("invalid command!");
+            choice = scanner.nextLine();
+        }
+        if (choice.equals("a")) {
+            System.out.println("enter the number of tweet");
+            int selectedClientIndex = scanner.nextInt();
+            while (selectedClientIndex > res.size()) {
+                System.out.println("invalid command!");
+                selectedClientIndex = scanner.nextInt();
+            }
+
+
+
+        }
+        else if(choice.equals("b")){
+            profile(loggedUser);
         }
     }
     public static void search(User loggedUser){
@@ -380,9 +405,31 @@ public class  Client implements Runnable {
             if(answer.equals("found")){
                 ArrayList<User> res = (ArrayList<User>) in.readObject();
                 for (int i=1;i<= res.size();i++){
-                    System.out.println(i + "." + res.get(i));
+                    System.out.println(i + "." + res.get(i-1));
                 }
-
+                System.out.println("\na.select a client\nb.back");
+                String choice = scanner.nextLine();
+                while (!choice.equals("a") && !choice.equals("b")){
+                    System.out.println("invalid command!");
+                    choice = scanner.nextLine();
+                }
+                if(choice.equals("a")){
+                    System.out.println("enter the number of client");
+                    int selectedClientIndex = scanner.nextInt();
+                    while(selectedClientIndex > res.size()){
+                        System.out.println("invalid command!");
+                        selectedClientIndex = scanner.nextInt();
+                    }
+                    User chosenClient = res.get(selectedClientIndex-1);
+                    out.writeObject("get-profile");
+                    Thread.sleep(50);
+                    out.writeObject(chosenClient);
+                    Thread.sleep(50);
+                    in.readObject();
+                }
+                else if(choice.equals("b")){
+                    login(loggedUser.getId());
+                }
             }
             else if(answer.equals("not-found")){
                 System.out.println("no result");

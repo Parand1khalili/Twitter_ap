@@ -84,4 +84,3 @@ public class Profile {
         this.tweets = tweets;
     }
 }
-
