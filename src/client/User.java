@@ -23,6 +23,11 @@ public class User implements Serializable {
     private String following;
     private int followerNum;
     private int followingNum;
+    private String blacklist;
+
+    public String getBlacklist() {
+        return blacklist;
+    }
 
     public String getFollowers() {
         return followers;
@@ -45,6 +50,10 @@ public class User implements Serializable {
         this.registerDate = new Date();
         this.followerNum=0;
         this.followingNum=0;
+    }
+    public User(String id,String password){
+        this.id = id;
+        this.password = password;
     }
 
     public int getFollowerNum() {

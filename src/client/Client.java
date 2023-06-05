@@ -190,7 +190,7 @@ public class  Client implements Runnable {
         System.out.print("1.profile\n2.time line\n3.new tweet\n4.search\n5.logout\n");
         int choice = scanner.nextInt();
         if(choice == 1){
-            profile(loggedUser);
+            ownProfile(loggedUser);
         }
         else if (choice == 2){
             //TODO
@@ -209,7 +209,7 @@ public class  Client implements Runnable {
             }
         }
     }
-    public static void profile (User loggedUser){
+    public static void ownProfile (User loggedUser){
         Scanner scanner = new Scanner(System.in);
         System.out.println(loggedUser.getFirstName() + " " + loggedUser.getLastName());
         System.out.print("1.edit profile\n2.edit header\n3.edit bio\n4.edit web\n" +
@@ -379,16 +379,16 @@ public class  Client implements Runnable {
                 System.out.println("invalid command!");
                 selectedClientIndex = scanner.nextInt();
             }
-
-
+            // todo show tweet like and reply and...
 
         }
         else if(choice.equals("b")){
-            profile(loggedUser);
+            ownProfile(loggedUser);
         }
     }
     public static void search(User loggedUser){
         Scanner scanner = new Scanner(System.in);
+        System.out.println("SEARCH:");
         System.out.println("please enter your text");
         String searchingWord = scanner.nextLine();
         while (searchingWord==null){
@@ -420,12 +420,7 @@ public class  Client implements Runnable {
                         System.out.println("invalid command!");
                         selectedClientIndex = scanner.nextInt();
                     }
-                    User chosenClient = res.get(selectedClientIndex-1);
-                    out.writeObject("get-profile");
-                    Thread.sleep(50);
-                    out.writeObject(chosenClient);
-                    Thread.sleep(50);
-                    in.readObject();
+                    showOtherProfile(loggedUser,res.get(selectedClientIndex-1));
                 }
                 else if(choice.equals("b")){
                     login(loggedUser.getId());
@@ -438,7 +433,145 @@ public class  Client implements Runnable {
             throw new RuntimeException(e);
         }
     }
+    public static void showOtherProfile(User loggedUser, User wantedUser){
+        Scanner scanner = new Scanner(System.in);
+        Profile wantedUserProfile;
+        ArrayList<Tweet> wantedUserTweets;
+        try {
+            out.writeObject("get-profile");
+            Thread.sleep(50);
+            out.writeObject(wantedUser);
+            Thread.sleep(50);
+            wantedUserProfile = (Profile) in.readObject();
+            wantedUserTweets = (ArrayList<Tweet>) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(wantedUser.getId());
+        System.out.println(wantedUser.getFirstName() + " " + wantedUser.getLastName());
+        System.out.println("------------------------------------------------");
+        System.out.println("followings :" + wantedUserProfile.getFollowingNum() + "followers :" + wantedUserProfile.getFollowers());
+        System.out.println(wantedUserProfile.getBio());
+        System.out.println(wantedUserProfile.getWeb());
+        System.out.println(wantedUserProfile.getLocation());
+        String choice = " ";
+        for (int i = wantedUserTweets.size()-1; i >=0 ; i--) {
+            System.out.println(wantedUserTweets.size()-i + "." + wantedUserTweets.get(i));
+        }
+        System.out.println("\na.follow\tb.unfollow\nc.block\td.unblock");
+        System.out.println("e.select a tweet\tf.back");
+        while(!choice.equals("f")) {
+            choice = scanner.nextLine();
+            while (!choice.equals("a") && !choice.equals("b") &&
+                    !choice.equals("c") && !choice.equals("d") &&
+                    !choice.equals("e") && !choice.equals("f")) {
+                System.out.println("invalid command!");
+                choice = scanner.nextLine();
+            }
+            if (choice.equals("a")) {
+                String answer;
+                try {
+                    out.writeObject("follow");
+                    Thread.sleep(50);
+                    out.writeObject(loggedUser);
+                    Thread.sleep(50);
+                    out.writeObject(wantedUser.getId());
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("already-followed")){
+                    System.out.println("you are already following this user");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("user followed");
+                }
+                choice = " ";
+            }
+            if (choice.equals("b")) {
+                String answer;
+                try {
+                    out.writeObject("unfollow");
+                    Thread.sleep(50);
+                    out.writeObject(loggedUser);
+                    Thread.sleep(50);
+                    out.writeObject(wantedUser.getId());
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("already-followed")){
+                    System.out.println("you are not following this user");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("user unfollowed");
+                }
+                choice = " ";
+            }
+            if (choice.equals("c")) {
+                String answer;
+                try {
+                    out.writeObject("block");
+                    Thread.sleep(50);
+                    out.writeObject(loggedUser);
+                    Thread.sleep(50);
+                    out.writeObject(wantedUser);
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("already-blocked")){
+                    System.out.println("you have already blocked this user");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("user blocked");
+                }
+                choice = " ";
+            }
+            if (choice.equals("d")) {
+                String answer;
+                try {
+                    out.writeObject("unblock");
+                    Thread.sleep(50);
+                    out.writeObject(loggedUser);
+                    Thread.sleep(50);
+                    out.writeObject(wantedUser);
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("have-not-blocked")){
+                    System.out.println("you have not blocked this user");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("user unblocked");
+                }
+                choice = " ";
+            }
+            if (choice.equals("e")) {
+                System.out.println("enter the number of tweet");
+                int selectedClientIndex = scanner.nextInt();
+                while (selectedClientIndex > wantedUserTweets.size()) {
+                    System.out.println("invalid command!");
+                    selectedClientIndex = scanner.nextInt();
+                }
+                // show tweet
+                choice = " ";
+            }
+            if (choice.equals("f")) {
+                choice = " ";
+                login(loggedUser.getId());
+            }
+        }
+    }
 
+    public static void showTweet(Tweet theTweet){
+
+    }
 
 
     public static boolean emailValidity(String email){
