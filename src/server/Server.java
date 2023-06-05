@@ -258,7 +258,7 @@ class ClientHandler implements Runnable{
         ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
         while (resultSet.next()){
             if(resultSet.getString(1).equals(theUser.getId())){
-                statement.executeUpdate("INSERT INTO user(profilePicture)"+"VALUES "+prof);
+                statement.executeUpdate("UPDATE user SET profilePicture = '" + prof + "' WHERE id = " + theUser.getId());
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                         resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
                         resultSet.getInt(18),resultSet.getInt(19));
@@ -274,7 +274,7 @@ class ClientHandler implements Runnable{
         ResultSet resultSet = statement.executeQuery("SELECT * FROM user");
         while (resultSet.next()){
             if(resultSet.getString(1).equals(theUser.getId())){
-                statement.executeUpdate("INSERT INTO user(header)"+"VALUES "+header);
+                statement.executeUpdate("UPDATE user SET header = '" + header + "' WHERE id = " + theUser.getId());
                 Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                         resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
                         resultSet.getInt(18),resultSet.getInt(19));
@@ -304,7 +304,7 @@ class ClientHandler implements Runnable{
             //bio
             while (resultSet.next()){
                 if(resultSet.getString(1).equals(theUser.getId())){
-                    statement.executeUpdate("INSERT INTO user(bio)"+"VALUES "+text);
+                    statement.executeUpdate("UPDATE user SET bio = '" + text + "' WHERE id = " + theUser.getId());
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                             resultSet.getString(13),resultSet.getString(14),resultSet.getString(15),
                             resultSet.getInt(18),resultSet.getInt(19));
@@ -317,7 +317,7 @@ class ClientHandler implements Runnable{
             //loc
             while (resultSet.next()){
                 if(resultSet.getString(1).equals(theUser.getId())){
-                    statement.executeUpdate("INSERT INTO user(location)"+"VALUES "+text);
+                    statement.executeUpdate("UPDATE user SET location = '" + text + "' WHERE id = " + theUser.getId());
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                             resultSet.getString(13),resultSet.getString(14),resultSet.getString(15)
                     ,resultSet.getInt(18),resultSet.getInt(19));
@@ -330,7 +330,7 @@ class ClientHandler implements Runnable{
             //web
             while (resultSet.next()){
                 if(resultSet.getString(1).equals(theUser.getId())){
-                    statement.executeUpdate("INSERT INTO user(web)"+"VALUES "+text);
+                    statement.executeUpdate("UPDATE user SET web = '" + text + "' WHERE id = " + theUser.getId());
                     Profile theProfile = new Profile(resultSet.getString(11),resultSet.getString(12),
                             resultSet.getString(13),resultSet.getString(14),resultSet.getString(15)
                     ,resultSet.getInt(18),resultSet.getInt(19));
@@ -354,12 +354,12 @@ class ClientHandler implements Runnable{
                 }
             }
             else{
-                statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+theUser.getFollowing()+"="+followingId);
-                statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()+1));
+                statement.executeUpdate("UPDATE user SET followings = '" + theUser.getFollowing()+"="+followingId + "' WHERE id = " + theUser.getId());
+                statement.executeUpdate("UPDATE user SET followingNum = '" + (theUser.getFollowingNum()+1) + "' WHERE id = " + theUser.getId());
                 while (resultSet.next()){
                     if(resultSet.getString(1).equals(followingId)){
-                        statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+resultSet.getString(16)+"="+theUser.getId());
-                        statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(Integer.parseInt(resultSet.getString(18))+1));
+                        statement.executeUpdate("UPDATE user SET followers = '" + resultSet.getString(16)+"="+theUser.getId() + "' WHERE id = " + followingId);
+                        statement.executeUpdate("UPDATE user SET followerNum = '" + (Integer.parseInt(resultSet.getString(18))+1)+ "' WHERE id = " + followingId);
                         respond="success";
                         out.writeObject(respond);
                         return;
@@ -417,8 +417,8 @@ class ClientHandler implements Runnable{
                         i++;
                     }
                     list.remove(i);
-                    statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list);
-                    statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()-1));
+                    statement.executeUpdate("UPDATE user SET followings = '" +list+ "' WHERE id = " + theUser.getId());
+                    statement.executeUpdate("UPDATE user SET followingNum = '" + (theUser.getFollowingNum()-1) + "' WHERE id = " + theUser.getId());
                 }
             }
         }
@@ -434,8 +434,8 @@ class ClientHandler implements Runnable{
                     i++;
                 }
                 list.remove(i);
-                statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
-                statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(Integer.parseInt(resultSet.getString(18))-1));
+                statement.executeUpdate("UPDATE user SET followers = '" +list+ "' WHERE id = " + followingId);
+                statement.executeUpdate("UPDATE user SET followerNum = '" +(Integer.parseInt(resultSet.getString(18))-1)+ "' WHERE id = " + followingId);
                 respond="success";
                 out.writeObject(respond);
                 return;
@@ -504,10 +504,10 @@ class ClientHandler implements Runnable{
             }
             else if(resultSetTweet.equals(theTweet) && ! resultSetTweet.getString(9).contains(theUser.getId())){
                 respond="success";
-                statement.executeUpdate("INSERT INTO Tweet(likedIds)"+"VALUES "+theTweet.getLikesIds()+"="+theUser.getId());
-                statement.executeUpdate("INSERT INTO Tweet(like)"+"VALUES "+(Integer.parseInt(resultSetTweet.getString(4))+1));
+                statement.executeUpdate("UPDATE Tweet SET likedIds = '" +theTweet.getLikesIds()+"="+theUser.getId()+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
+                statement.executeUpdate("UPDATE Tweet SET like = '" +(Integer.parseInt(resultSetTweet.getString(4))+1)+"'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
                 if(Integer.parseInt(resultSetTweet.getString(4))==10){
-                    statement.executeUpdate("INSERT INTO Tweet(isFavStar)"+"VALUES "+(theTweet.getIsFavStar()+1));
+                    statement.executeUpdate("UPDATE Tweet SET isFavStar = '" +(theTweet.getIsFavStar()+1)+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
                 }
                 out.writeObject(respond);
             }
@@ -545,7 +545,7 @@ class ClientHandler implements Runnable{
                 return;
             }
             else if(resultSetUser.getString(1).equals(theUser.getId())){
-                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+(theUser.getBlacklist())+"="+block.getId());
+                statement.executeUpdate("UPDATE user SET blacklist = '" +(theUser.getBlacklist())+"="+block.getId()+ "' WHERE id = " + theUser.getId());
                 respond="success";
                 out.writeObject(respond);
             }
@@ -564,8 +564,8 @@ class ClientHandler implements Runnable{
                     i++;
                 }
                 list.remove(i);
-                statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
-                statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(theUser.getFollowerNum()-1));
+                statement.executeUpdate("UPDATE user SET followers = '" +list+ "' WHERE id = " + theUser.getId());
+                statement.executeUpdate("UPDATE user SET followerNum = '" +(theUser.getFollowerNum()-1)+ "' WHERE id = " + theUser.getId());
 
                 //the user should be removed from the block followings
                 while (resultSetBlock.next()){
@@ -580,8 +580,8 @@ class ClientHandler implements Runnable{
                             j++;
                         }
                         list2.remove(j);
-                        statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list2);
-                        statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(block.getFollowingNum()-1));
+                        statement.executeUpdate("UPDATE user SET followings = '" +list2+ "' WHERE id = " + block.getId());
+                        statement.executeUpdate("UPDATE user SET followingNum = '" +(block.getFollowingNum()-1)+ "' WHERE id = " + block.getId());
                     }
                 }
             }
@@ -600,8 +600,8 @@ class ClientHandler implements Runnable{
                             i++;
                         }
                         list.remove(i);
-                        statement.executeUpdate("INSERT INTO user(followers)"+"VALUES "+list);
-                        statement.executeUpdate("INSERT INTO user(followerNum)"+"VALUES "+(block.getFollowerNum()-1));
+                        statement.executeUpdate("UPDATE user SET followers = '" +list+ "' WHERE id = " + block.getId());
+                        statement.executeUpdate("UPDATE user SET followerNum = '" +(block.getFollowerNum()-1)+ "' WHERE id = " + block.getId());
                     }
                 }
 
@@ -618,8 +618,8 @@ class ClientHandler implements Runnable{
                             j++;
                         }
                         list2.remove(j);
-                        statement.executeUpdate("INSERT INTO user(followings)"+"VALUES "+list2);
-                        statement.executeUpdate("INSERT INTO user(followingNum)"+"VALUES "+(theUser.getFollowingNum()-1));
+                        statement.executeUpdate("UPDATE user SET followings = '" +list2+ "' WHERE id = " + theUser.getId());
+                        statement.executeUpdate("UPDATE user SET followingNum = '" +(theUser.getFollowingNum()-1)+ "' WHERE id = " + theUser.getId());
                     }
                 }
             }
@@ -647,7 +647,7 @@ class ClientHandler implements Runnable{
                     i++;
                 }
                 list.remove(i);
-                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+list);
+                statement.executeUpdate("UPDATE user SET blacklist = '" +list+ "' WHERE id = " + theUser.getId());
                 respond="success";
                 out.writeObject(respond);
                 return;
@@ -659,18 +659,18 @@ class ClientHandler implements Runnable{
         Statement statement = connection.createStatement();
         statement.executeUpdate("INSERT INTO Tweet(text, picture, userid, like, retweet, comment, date) "+"VALUES "
                 +theTweet.getText()+theTweet.getPicLink()+theUser.getId()+theTweet.getLikes()+theTweet.getRetweet()+theTweet.getComment()+new Date());
-        statement.executeUpdate("INSERT INTO Tweet(retweet)"+"VALUES "+(theTweet.getRetweet()+1));
+        statement.executeUpdate("UPDATE Tweet SET retweet = '" +(theTweet.getRetweet()+1)+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
         String respond="success";
         out.writeObject(respond);
     }
     public static void addComment(User theUser,Tweet theTweet,String comment) throws SQLException, IOException {
         java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
         Statement statement = connection.createStatement();
-        statement.executeUpdate("INSERT INTO Tweet(comment)"+"VALUES "+(theTweet.getComment()+1));
+        statement.executeUpdate("UPDATE Tweet SET comment = '" +(theTweet.getComment()+1)+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
         String respond;
-        statement.executeUpdate("INSERT INTO Tweet(comments)"+"VALUES "+"@"+theUser.getId()+"="+comment);
+        statement.executeUpdate("UPDATE Tweet SET comments = '" +"@"+theUser.getId()+"="+comment+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
         //@id=comment
-        statement.executeUpdate("INSERT INTO Tweet(comment)"+"VALUES "+(theTweet.getComment()+1));
+        statement.executeUpdate("UPDATE Tweet SET comment = '" +(theTweet.getComment()+1)+ "'WHERE text = " + theTweet.getText()+ "' AND userid = '"+theTweet.getUserId());
         respond="success";
         out.writeObject(respond);
     }
@@ -688,4 +688,5 @@ class ClientHandler implements Runnable{
             }
         }
     }
+
 }
