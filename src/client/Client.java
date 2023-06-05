@@ -3,7 +3,9 @@ package client ;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.sql.*;
@@ -559,7 +561,7 @@ public class  Client implements Runnable {
                     System.out.println("invalid command!");
                     selectedClientIndex = scanner.nextInt();
                 }
-                // show tweet
+                // todo show tweet
                 choice = " ";
             }
             if (choice.equals("f")) {
@@ -569,11 +571,141 @@ public class  Client implements Runnable {
         }
     }
 
-    public static void showTweet(Tweet theTweet){
-
+    public static void showTweet(Tweet theTweet,User userWhoIsWatching){
+        Scanner scanner = new Scanner(System.in);
+        User theUser;
+        Profile UserProfile;
+        try {
+            out.writeObject("get-User");
+            Thread.sleep(50);
+            out.writeObject(theTweet.getUserId());
+            Thread.sleep(50);
+            theUser = (User) in.readObject();
+            Thread.sleep(50);
+            out.writeObject("get-profile");
+            Thread.sleep(50);
+            out.writeObject(theUser);
+            Thread.sleep(50);
+            UserProfile = (Profile) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(theUser.getId());
+        System.out.println(theUser.getFirstName() + " " + theUser.getLastName() + " :");
+        System.out.println("--------------------------------------------------");
+        if(theTweet.getPicLink() != null){
+            // show pic
+        }
+        System.out.println(theTweet.getText());
+        long diffInMinutes = dateDifference(theTweet.getDate());
+        if(diffInMinutes < 60){
+            System.out.println(diffInMinutes +"m");
+        }
+        else if(diffInMinutes <= 1440){
+            long diffInHours = diffInMinutes/60;
+            System.out.println(diffInHours +"h");
+        }
+        else {
+            System.out.println(theTweet.getDate());
+        }
+        System.out.println("1.likes :" + theTweet.getLikes() + "2.comments :" + theTweet.getComment());
+        System.out.println( "3.retweets :" +theTweet.getRetweet() + "\t4.comment\n5.back");
+        int choice = scanner.nextInt();
+        while (choice != 5){
+            if(choice == 1){
+                String answer;
+                try {
+                    out.writeObject("like");
+                    Thread.sleep(50);
+                    out.writeObject(theUser);
+                    Thread.sleep(50);
+                    out.writeObject(theTweet);
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                    Thread.sleep(50);
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("already-liked")){
+                    System.out.println("tweet already liked!");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("tweet liked!");
+                }
+            }
+            else if(choice == 2 ){
+                ArrayList<String> comments;
+                try {
+                    out.writeObject("show-comments");
+                    Thread.sleep(50);
+                    out.writeObject(theTweet);
+                    Thread.sleep(50);
+                    comments = (ArrayList<String>) in.readObject();
+                    Thread.sleep(50);
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                for (String comment : comments){
+                    System.out.println(comment);
+                }
+            }
+            else if(choice == 3){
+                String answer;
+                try {
+                    out.writeObject("retweet");
+                    Thread.sleep(50);
+                    out.writeObject(theUser);
+                    Thread.sleep(50);
+                    out.writeObject(theTweet);
+                    Thread.sleep(50);
+                    answer = (String) in.readObject();
+                    Thread.sleep(50);
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("already-retweeted")){
+                    System.out.println("you already retweeted that tweet");
+                }
+                else if(answer.equals("success")){
+                    System.out.println("done!");
+                }
+            }
+            else if(choice == 4){
+                String answer;
+                System.out.println("please write your comment:");
+                String comment = scanner.nextLine();
+                while (comment==null || comment.length()>160){
+                    System.out.println("invalid comment try again");
+                    comment=scanner.nextLine();
+                }
+                try {
+                    out.writeObject("comment");
+                    Thread.sleep(50);
+                    out.writeObject(userWhoIsWatching);
+                    Thread.sleep(50);
+                    out.writeObject(theTweet);
+                    Thread.sleep(50);
+                    out.writeObject(comment);
+                    Thread.sleep(50);
+                    answer=(String) in.readObject();
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                if(answer.equals("success")){
+                    System.out.println("comment submitted");
+                }
+            }
+        }
     }
 
 
+    public static long dateDifference(Date tweetDate){
+        Date now = new Date();
+
+        long diffInMillies = Math.abs(now.getTime() - tweetDate.getTime());
+        long diffInMinutes = Duration.ofMillis(diffInMillies).toMinutes();
+        return diffInMinutes;
+    }
     public static boolean emailValidity(String email){
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(regex);
