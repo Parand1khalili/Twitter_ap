@@ -607,10 +607,35 @@ class ClientHandler implements Runnable{
             }
         }
     }
-    public static void unblock(User thUser,User unblock){
-
-
-
+    public static void unblock(User theUser,User unblock) throws SQLException, IOException {
+        java.sql.Connection connection = DriverManager.getConnection("jdbc:sqlite:jdbc.db");
+        Statement statement = connection.createStatement();
+        ResultSet resultSetUser = statement.executeQuery("SELECT * FROM user");
+        ResultSet resultSetUnblock = statement.executeQuery("SELECT * FROM user");
+        String respond;
+        while (resultSetUser.next()){
+            if(resultSetUser.getString(1).equals(theUser.getId()) && !resultSetUser.getString(20).contains(unblock.getId())){
+                respond="you-didnt-block-this-user";
+                out.writeObject(respond);
+                return;
+            }
+            if(resultSetUser.getString(1).equals(theUser.getId())  && resultSetUser.getString(20).contains(unblock.getId())){
+                int i;
+                String[] blacklist=resultSetUser.getString(20).split("=");
+                ArrayList<String> list = new ArrayList<String>(Arrays.asList(blacklist));
+                for( i=0;i<list.size();i++){
+                    if(list.equals(unblock.getId())){
+                        break;
+                    }
+                    i++;
+                }
+                list.remove(i);
+                statement.executeUpdate("INSERT INTO user(blacklist)"+"VALUES "+list);
+                respond="success";
+                out.writeObject(respond);
+                return;
+            }
+        }
     }
 }
 
