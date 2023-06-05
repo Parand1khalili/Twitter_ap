@@ -164,10 +164,12 @@ public class  Client implements Runnable {
         }
         try {
             if(((String) in.readObject()).equals("not-found")){
-                //todo handle
+                System.out.println("user not found try again");
+                signIn();
             }
             else if(((String) in.readObject()).equals("wrong-pass")){
-                //todo handle
+                System.out.println("wrong password try again");
+                signIn();
             }
             else if(((String) in.readObject()).equals("success")){
                 login(theUser.getId());
@@ -198,7 +200,7 @@ public class  Client implements Runnable {
             //TODO
         }
         else if (choice == 3){
-            //TODO
+            newTweet(loggedUser);
         }
         else if (choice == 4){
             search(loggedUser);
@@ -365,8 +367,10 @@ public class  Client implements Runnable {
         System.out.println(loggedUserProfile.getLocation());
         System.out.println(loggedUserProfile.getWeb());
         String choice;
+        int index=0;
         for (int i = res.size()-1; i >=0 ; i--) {
             System.out.println(res.size()-i + "." + res.get(i));
+            index = i;
         }
         System.out.println("\na.select a tweet\nb.back");
         choice = scanner.nextLine();
@@ -381,8 +385,7 @@ public class  Client implements Runnable {
                 System.out.println("invalid command!");
                 selectedClientIndex = scanner.nextInt();
             }
-            // todo show tweet like and reply and...
-
+            // todo to string tweet
         }
         else if(choice.equals("b")){
             ownProfile(loggedUser);
@@ -556,12 +559,12 @@ public class  Client implements Runnable {
             }
             if (choice.equals("e")) {
                 System.out.println("enter the number of tweet");
-                int selectedClientIndex = scanner.nextInt();
-                while (selectedClientIndex > wantedUserTweets.size()) {
+                int selectedTweetIndex = scanner.nextInt();
+                while (selectedTweetIndex > wantedUserTweets.size()) {
                     System.out.println("invalid command!");
-                    selectedClientIndex = scanner.nextInt();
+                    selectedTweetIndex = scanner.nextInt();
                 }
-                // todo show tweet
+                showTweet(wantedUserTweets.get(selectedTweetIndex-1),loggedUser);
                 choice = " ";
             }
             if (choice.equals("f")) {
@@ -695,10 +698,47 @@ public class  Client implements Runnable {
                     System.out.println("comment submitted");
                 }
             }
+            else if(choice==5){
+                login(userWhoIsWatching.getId());
+            }
         }
     }
-
-
+    public static void newTweet(User loggedUser){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("1.just text\t2.just picture\t3.both");
+        int choice = scanner.nextInt();
+        String text="",picPath="";
+        if(choice != 2){
+            System.out.println("please enter your text");
+            text = scanner.nextLine();
+            while (text==null || text.length()>280){
+                System.out.println("invalid text! try again");
+                text = scanner.nextLine();
+            }
+        }
+        if(choice != 1){
+            System.out.println("please enter your pic path/link");
+            picPath = scanner.nextLine();
+            while(picPath == null){ // check size of pic
+                System.out.println("invalid text! try again");
+                picPath = scanner.nextLine();
+            }
+        }
+        Tweet newTweet = new Tweet(text,picPath,loggedUser.getId());
+        String answer;
+        try {
+            out.writeObject("new-tweet");
+            Thread.sleep(50);
+            out.writeObject(newTweet);
+            answer = (String) in.readObject();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        if(answer.equals("success")){
+            System.out.println("tweet uploaded");
+        }
+        login(loggedUser.getId());
+    }
     public static long dateDifference(Date tweetDate){
         Date now = new Date();
 

@@ -21,6 +21,9 @@ public class Tweet implements Serializable,Comparable<Tweet>{
         this.userId = userId;
         this.date = new Date();
         this.isFavStar=0;
+        this.likes=0;
+        this.retweet=0;
+        this.comment=0;
     }
 
     public Tweet(String text, String picLink, String userId, int likes, int retweet, int comment, Date date, int isFavStar) {
